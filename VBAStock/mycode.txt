@@ -1,0 +1,97 @@
+Sub Button1_Click():
+
+For Each ws In Worksheets
+
+    ws.Range("I1").Value = "Ticker"
+    ws.Range("J1").Value = "Yearly Change"
+    ws.Range("K1").Value = "Percent Change"
+    ws.Range("L1").Value = "Total Stock Volume"
+    ws.Range("O1").Value = "Ticker"
+    ws.Range("P1").Value = "Value"
+    ws.Range("N2").Value = "Greatest % Increase"
+    ws.Range("N3").Value = "Greatest % Decrease"
+    ws.Range("N4").Value = "Greatest Total Volume"
+    
+    Dim Tickertitle As String
+    Dim Totalstockvolume As Double
+    Totalstockvolume = 0
+    Dim lastrow As Long
+    Dim yearlyopen As Double
+    Dim yearlyclose As Double
+    Dim greatestincrease As Double
+    Dim greatestdecrease As Double
+    Dim lastinternalrow As Long
+    Dim percentchange As Double
+    lastinternalrow = 2
+    Dim firstnewrow As Long
+    firstnewrow = 2
+    
+    lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+    
+    For i = 2 To lastrow
+        'calculate the sum of total stock volume for each tricker
+        Totalstockvolume = Totalstockvolume + ws.Cells(i, 7).Value
+        
+        'seperating the values on the basis of the tricker
+        If ws.Cells(i, 1).Value <> ws.Cells(i + 1, 1).Value Then
+        
+            ' assigning the values in the first column for tricktitle
+            Tickertitle = ws.Cells(i, 1).Value
+            ' placing the tricker values and total stock volumnes in the table
+            ws.Range("I" & lastinternalrow).Value = Tickertitle
+            ws.Range("L" & lastinternalrow).Value = Totalstockvolume
+            ' reseting totalstockvolume to zero
+            Totalstockvolume = 0
+       
+        
+        'assin the yearlyopen and yearlyclose values
+            yearlyopen = ws.Range("C" & firstnewrow).Value
+            yearlyclose = ws.Range("F" & i).Value
+           'calculate the yearlychange value and put it in the table
+            yearlychange = yearlyclose - yearlyopen
+            ws.Range("J" & lastinternalrow).Value = yearlychange
+        'calculate the percentchange value
+            If yearlyopen = 0 Then
+                percentchange = 0
+            Else: percentchange = yearlychange / yearlyopen
+            
+            End If
+            ' put the percentchange value in the table and correct the format
+            ws.Range("K" & lastinternalrow).Value = percentchange
+            ws.Range("K" & lastinternalrow).NumberFormat = "0.00%"
+           'color code the column cells on the basis of the value
+            If ws.Range("J" & lastinternalrow).Value > 0 Then
+               ws.Range("J" & lastinternalrow).Interior.ColorIndex = 4
+            Else: ws.Range("J" & lastinternalrow).Interior.ColorIndex = 3
+            End If
+        'add one to the lastinternalrow to calculate for new ticker
+        lastinternalrow = lastinternalrow + 1
+        'firstnewrow is set to be i+1 to get the yearlyopen value from the first row of the new ticker
+        firstnewrow = i + 1
+        End If
+   Next i
+   lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+   'calculate the greatest increase, decrease and stock volume and putting the percentage numbers in format
+   For i = 2 To lastrow
+    If ws.Range("K" & i).Value > ws.Range("P2").Value Then
+        ws.Range("P2").Value = ws.Range("K" & i).Value
+        ws.Range("O2").Value = ws.Range("I" & i).Value
+        
+    End If
+    If ws.Range("K" & i).Value < ws.Range("P3").Value Then
+        ws.Range("P3").Value = ws.Range("K" & i).Value
+        ws.Range("O3").Value = ws.Range("I" & i).Value
+        
+    End If
+    If ws.Range("L" & i).Value > ws.Range("P4").Value Then
+        ws.Range("P4").Value = ws.Range("L" & i).Value
+        ws.Range("O4").Value = ws.Range("I" & i).Value
+    End If
+    
+    Next i
+    ws.Range("P2").NumberFormat = "0.00%"
+    ws.Range("P3").NumberFormat = "0.00%"
+Next ws
+    
+End Sub
+
